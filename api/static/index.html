@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gnosis — Intelligent document search and knowledge discovery platform. Login to access your knowledge base." />
+  <title>Gnosis — Login</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="login-card glass-card animate-in">
+
+    <div class="login-header">
+      <div class="brand-icon-lg">🔮</div>
+      <h1>Welcome to Gnosis</h1>
+      <p>Your intelligent knowledge base</p>
+    </div>
+
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input class="input-field" type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input class="input-field" type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <div id="statusMsg" class="status-message"></div>
+
+    <div class="login-actions" style="margin-top: 24px;">
+      <button class="btn btn-primary btn-lg" id="loginBtn" onclick="handleLogin()">
+        Sign In
+      </button>
+      <button class="btn btn-secondary btn-lg" id="registerBtn" onclick="handleRegister()">
+        Register
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+  const emailEl = document.getElementById('email');
+  const passEl = document.getElementById('password');
+  const statusMsg = document.getElementById('statusMsg');
+
+  function showStatus(message, type) {
+    statusMsg.textContent = message;
+    statusMsg.className = 'status-message visible ' + type;
+  }
+
+  function hideStatus() {
+    statusMsg.className = 'status-message';
+  }
+
+  function showToast(message, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show ' + type;
+    setTimeout(() => toast.className = 'toast', 3000);
+  }
+
+  function setBtnLoading(btn, loading) {
+    if (loading) {
+      btn.dataset.origText = btn.textContent;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+    } else {
+      btn.textContent = btn.dataset.origText;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  async function handleLogin() {
+    hideStatus();
+    const btn = document.getElementById('loginBtn');
+    setBtnLoading(btn, true);
+
+    try {
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailEl.value,
+          password: passEl.value
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('token', data.access_token);
+        showToast('Welcome back! Redirecting...', 'success');
+        setTimeout(() => window.location.href = '/upload', 800);
+      } else {
+        showStatus(data.detail || 'Invalid credentials', 'error');
+      }
+    } catch (err) {
+      showStatus('Network error. Please try again.', 'error');
+    } finally {
+      setBtnLoading(btn, false);
+    }
+  }
+
+  async function handleRegister() {
+    hideStatus();
+    const btn = document.getElementById('registerBtn');
+    setBtnLoading(btn, true);
+
+    try {
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailEl.value,
+          password: passEl.value
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showStatus('Account created! You can now sign in.', 'success');
+        showToast('Registration successful ✓', 'success');
+      } else {
+        showStatus(data.detail || 'Registration failed', 'error');
+      }
+    } catch (err) {
+      showStatus('Network error. Please try again.', 'error');
+    } finally {
+      setBtnLoading(btn, false);
+    }
+  }
+
+  // Enter key submits
+  passEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+</script>
+
+</body>
+</html>

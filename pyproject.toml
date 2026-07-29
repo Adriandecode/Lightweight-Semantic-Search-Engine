@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnosis"
+version = "0.1.0"
+description = "Multimodal semantic search pipeline orchestrated with Apache Airflow"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "sentence-transformers==5.1.2",
+    "numpy>=1.26,<3.0",
+    "docx2txt==0.9",
+    "PyMuPDF>=1.24.0",
+    "python-pptx==1.0.2",
+    "pillow==12.2.0",
+    "ollama==0.6.1",
+    "python-magic>=0.4.27; sys_platform != 'win32'",
+    "python-magic-bin>=0.4.14; sys_platform == 'win32'",
+    "PyYAML>=6.0.1",
+    "python-dotenv>=1.0.1",
+    "qdrant-client>=1.9.0",
+    "python-magic-bin>=0.4.14",
+    "psycopg2-binary>=2.9.11",
+    "pendulum>=3.2.0",
+    "python-magic>=0.4.27",
+    "fastapi>=0.135.3",
+    "uvicorn>=0.44.0",
+    "python-jose>=3.5.0",
+    "passlib[bcrypt]>=1.7.4",
+    "torch>=2.11.0",
+    "python-multipart>=0.0.26",
+]
+
+[project.optional-dependencies]
+airflow = [
+    "apache-airflow>=3.0.0",
+    "apache-airflow-providers-postgres",
+    "apache-airflow-providers-mysql"
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
